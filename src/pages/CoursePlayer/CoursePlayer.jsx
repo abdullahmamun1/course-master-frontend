@@ -189,6 +189,7 @@ export default function CoursePlayer() {
 
                     {lesson?.assignmentPrompt && (
                         <AssignmentSubmission
+                            key={lesson._id}
                             courseId={id}
                             lessonId={lesson._id}
                             prompt={lesson.assignmentPrompt}
@@ -199,6 +200,7 @@ export default function CoursePlayer() {
 
                     {lesson?.quiz && lesson.quiz.length > 0 && (
                         <QuizInterface
+                            key={lesson._id}
                             quiz={lesson.quiz}
                             courseId={id}
                             lessonId={lesson._id}
