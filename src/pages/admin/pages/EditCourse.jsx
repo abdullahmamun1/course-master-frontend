@@ -23,11 +23,10 @@ export default function EditCourse() {
         syllabus: [],
     });
 
+    // always load the latest version when the edit page opens
     useEffect(() => {
-        if (!currentCourse || currentCourse._id !== id) {
-            dispatch(fetchCourseById(id));
-        }
-    }, [dispatch, id, currentCourse]);
+        dispatch(fetchCourseById(id));
+    }, [dispatch, id]);
 
     useEffect(() => {
         if (currentCourse) {

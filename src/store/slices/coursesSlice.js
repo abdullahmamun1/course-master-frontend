@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getCourses, getCourseById } from "../../services/courses.api";
+import { updateCourseAsync } from "./adminSlice";
 
 export const fetchCourses = createAsyncThunk(
     "courses/fetchCourses",
@@ -86,6 +87,12 @@ const coursesSlice = createSlice({
             .addCase(fetchCourseById.rejected, (state, action) => {
                 state.detailLoading = false;
                 state.error = action.payload;
+            })
+            // keep the cached course in sync after an admin edit
+            .addCase(updateCourseAsync.fulfilled, (state, action) => {
+                if (state.currentCourse?._id === action.payload?._id) {
+                    state.currentCourse = action.payload;
+                }
             });
     },
 });
