@@ -1,12 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createCourseAsync } from "../../../store/slices/adminSlice";
+import { createCourseAsync, clearSuccess, clearError } from "../../../store/slices/adminSlice";
 import { useNavigate } from "react-router-dom";
 
 export default function CreateCourse() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { creating, success, error } = useSelector((state) => state.admin);
+
+    // start with a clean form: drop leftover messages from other admin actions (e.g. delete/update)
+    useEffect(() => {
+        dispatch(clearSuccess());
+        dispatch(clearError());
+    }, [dispatch]);
 
     const [form, setForm] = useState({
         title: "",

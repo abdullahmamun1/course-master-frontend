@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCourseById } from "../../../store/slices/coursesSlice";
 import { useNavigate, useParams } from "react-router-dom";
-import { updateCourseAsync } from "../../../store/slices/adminSlice";
+import { updateCourseAsync, clearError } from "../../../store/slices/adminSlice";
 
 export default function EditCourse() {
     const { id } = useParams();
@@ -25,6 +25,7 @@ export default function EditCourse() {
 
     // always load the latest version when the edit page opens
     useEffect(() => {
+        dispatch(clearError()); // drop leftover errors from other admin actions
         dispatch(fetchCourseById(id));
     }, [dispatch, id]);
 
