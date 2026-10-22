@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCourseById } from "../../store/slices/coursesSlice";
 import { completeLessonAsync, fetchMyEnrollments } from "../../store/slices/enrollmentSlice";
 import { getMyEnrollments } from "../../services/enrollment.api";
+import { getMe } from "../../services/auth.api";
 import { submitAssignment } from "../../services/assignment.api";
 import { submitQuiz as submitQuizAPI } from "../../services/quiz.api";
 
@@ -51,22 +52,30 @@ export default function CoursePlayer() {
     const [selectedModule, setSelectedModule] = useState(0);
     const [selectedLesson, setSelectedLesson] = useState(0);
     const [loading, setLoading] = useState(true);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [accessError, setAccessError] = useState(null);
 
     const { currentCourse } = useSelector((state) => state.courses);
 
     useEffect(() => {
-        dispatch(fetchCourseById(id)).then(() => setLoading(false));
-
-        const fetchEnrollment = async () => {
+        // wait for course, enrollment and role before deciding access
+        const loadPlayer = async () => {
             try {
-                const res = await getMyEnrollments();
-                const userEnroll = res.data.find((e) => e.course?._id === id);
-                setEnrollment(userEnroll);
+                const [, enrollRes, meRes] = await Promise.all([
+                    dispatch(fetchCourseById(id)),
+                    getMyEnrollments(),
+                    getMe(),
+                ]);
+                setEnrollment(enrollRes.data.find((e) => e.course?._id === id) || null);
+                setIsAdmin(meRes.data?.role === "admin");
             } catch (err) {
                 console.error("Failed to load enrollment:", err);
+                setAccessError("Failed to verify your enrollment. Please try again.");
+            } finally {
+                setLoading(false);
             }
         };
-        fetchEnrollment();
+        loadPlayer();
     }, [id, dispatch]);
 
     const handleMarkComplete = async () => {
@@ -109,6 +118,27 @@ export default function CoursePlayer() {
 
     if (!currentCourse) {
         return <div className="alert alert-error">Course not found</div>;
+    }
+
+    if (accessError) {
+        return <div className="alert alert-error">{accessError}</div>;
+    }
+
+    // only enrolled students (or admins) can access the course content
+    if (!enrollment && !isAdmin) {
+        return (
+            <div className="card bg-base-100 border border-base-300 shadow-md max-w-xl mx-auto mt-8">
+                <div className="card-body text-center">
+                    <h2 className="card-title justify-center">You are not enrolled in this course</h2>
+                    <p className="text-base-content/70">
+                        Enroll in <span className="font-semibold">{currentCourse.title}</span> to access its lessons, quizzes and assignments.
+                    </p>
+                    <Link to={`/courses/${id}`} className="btn btn-primary w-fit mx-auto mt-4">
+                        View Course & Enroll
+                    </Link>
+                </div>
+            </div>
+        );
     }
 
     const module = currentCourse.syllabus?.[selectedModule];
