@@ -38,8 +38,9 @@ export default function EditCourse() {
                 price: currentCourse.price || 0,
                 category: currentCourse.category || "",
                 tags: (currentCourse.tags || []).join(", "),
-                batches: currentCourse.batches || [],
-                syllabus: currentCourse.syllabus || [],
+                // deep copy: Redux state is frozen, and the syllabus editors mutate nested objects
+                batches: structuredClone(currentCourse.batches || []),
+                syllabus: structuredClone(currentCourse.syllabus || []),
             });
         }
     }, [currentCourse]);
