@@ -11,6 +11,7 @@ import AdminSidebar from "./AdminSidebar";
 
 export default function AdminDashboard() {
     const [me, setMe] = useState(null);
+    const [meError, setMeError] = useState(false);
 
     useEffect(() => {
         const loadMe = async () => {
@@ -19,13 +20,14 @@ export default function AdminDashboard() {
                 setMe(res.data);
             } catch (err) {
                 console.error("Failed to load user:", err);
+                setMeError(true);
             }
         };
         loadMe();
     }, []);
 
     return (
-        <AdminRoute me={me}>
+        <AdminRoute me={me} error={meError}>
             {/* full width override */}
             <div className="w-full max-w-none flex flex-col lg:flex-row min-h-[80vh]">
 
