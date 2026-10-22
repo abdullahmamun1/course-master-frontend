@@ -65,8 +65,9 @@ export default function CreateCourse() {
             syllabus: form.syllabus,
         };
 
+        // only leave the page when the course was actually created; on failure keep the form and show the error
         dispatch(createCourseAsync(payload)).then((result) => {
-            if (!result.payload?.message && !error) {
+            if (createCourseAsync.fulfilled.match(result)) {
                 setTimeout(() => navigate("/admin/courses"), 1500);
             }
         });
