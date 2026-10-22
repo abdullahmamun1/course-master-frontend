@@ -113,6 +113,9 @@ export default function CoursePlayer() {
 
     const module = currentCourse.syllabus?.[selectedModule];
     const lesson = module?.lessons?.[selectedLesson];
+    const isLessonDone = !!lesson && !!enrollment?.progress?.completedLessons
+        ?.map(String)
+        .includes(String(lesson._id));
 
     return (
         <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4">
@@ -152,10 +155,10 @@ export default function CoursePlayer() {
 
                                 <button
                                     onClick={handleMarkComplete}
-                                    disabled={!!enrollment?.progress?.completedLessons?.includes(lesson)}
-                                    className={`btn btn-sm sm:btn-md ${enrollment?.progress?.completedLessons?.includes(lesson) ? "btn-disabled" : "btn-success"} mt-3 sm:mt-4 w-full sm:w-auto`}
+                                    disabled={isLessonDone}
+                                    className={`btn btn-sm sm:btn-md ${isLessonDone ? "btn-disabled" : "btn-success"} mt-3 sm:mt-4 w-full sm:w-auto`}
                                 >
-                                    {enrollment?.progress?.completedLessons?.includes(lesson) ? "Completed ✓" : "✓ Mark as Complete"}
+                                    {isLessonDone ? "Completed ✓" : "✓ Mark as Complete"}
                                 </button>
                             </div>
                         </div>
