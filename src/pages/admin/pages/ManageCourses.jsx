@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCourses, setPage } from "../../../store/slices/coursesSlice";
-import { deleteCourseAsync, clearSuccess } from "../../../store/slices/adminSlice";
+import { deleteCourseAsync, clearSuccess, clearError } from "../../../store/slices/adminSlice";
 import { Link } from "react-router-dom";
 
 // Helper function to calculate syllabus statistics
@@ -41,25 +41,42 @@ export default function ManageCourses() {
     const { courses, totalPages, page, loading } = useSelector((state) => state.courses);
     const { success, error } = useSelector((state) => state.admin);
 
+    // drop leftover messages from other admin pages
+    useEffect(() => {
+        dispatch(clearError());
+    }, [dispatch]);
+
     useEffect(() => {
         dispatch(fetchCourses({ page, limit: 10 }));
     }, [dispatch, page]);
 
-    const handleDelete = (id) => {
+    // if the current page no longer exists (e.g. its last course was deleted), go to the last page
+    useEffect(() => {
+        if (!loading && page > totalPages) {
+            dispatch(setPage(Math.max(1, totalPages)));
+        }
+    }, [loading, page, totalPages, dispatch]);
+
+    const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this course?")) {
-            dispatch(deleteCourseAsync(id));
+            const result = await dispatch(deleteCourseAsync(id));
+            // refresh right away so the deleted course disappears from the list
+            if (deleteCourseAsync.fulfilled.match(result)) {
+                dispatch(fetchCourses({ page, limit: 10 }));
+            }
         }
     };
 
+    // auto-hide success and error messages
     useEffect(() => {
-        if (success) {
+        if (success || error) {
             const timer = setTimeout(() => {
                 dispatch(clearSuccess());
-                dispatch(fetchCourses({ page, limit: 10 }));
-            }, 2000);
+                dispatch(clearError());
+            }, 3000);
             return () => clearTimeout(timer);
         }
-    }, [success, dispatch, page]);
+    }, [success, error, dispatch]);
 
     return (
         <div className="space-y-4 sm:space-y-5">
@@ -188,21 +205,22 @@ export default function ManageCourses() {
                             );
                         })}
                     </div>
-
-                    {totalPages > 1 && (
-                        <div className="flex justify-center gap-2 mt-6">
-                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                                <button
-                                    key={pageNum}
-                                    onClick={() => dispatch(setPage(pageNum))}
-                                    className={`btn btn-sm ${page === pageNum ? "btn-primary" : "btn-outline"}`}
-                                >
-                                    {pageNum}
-                                </button>
-                            ))}
-                        </div>
-                    )}
                 </>
+            )}
+
+            {/* pager is always available, even when the current page is empty */}
+            {totalPages > 1 && (
+                <div className="flex justify-center gap-2 mt-6">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                        <button
+                            key={pageNum}
+                            onClick={() => dispatch(setPage(pageNum))}
+                            className={`btn btn-sm ${page === pageNum ? "btn-primary" : "btn-outline"}`}
+                        >
+                            {pageNum}
+                        </button>
+                    ))}
+                </div>
             )}
         </div>
     );
