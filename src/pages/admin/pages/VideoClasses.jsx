@@ -142,7 +142,8 @@ export default function VideoClasses() {
                                 return {
                                     ...lesson,
                                     liveClassLink: meetLink.trim(),
-                                    liveClassDate: new Date().toISOString()
+                                    // keep an existing schedule; only default to now when the lesson had none
+                                    liveClassDate: lesson.liveClassDate || new Date().toISOString()
                                 };
                             }
                             return lesson;
