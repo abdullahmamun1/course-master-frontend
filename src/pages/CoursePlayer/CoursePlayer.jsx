@@ -174,7 +174,7 @@ export default function CoursePlayer() {
                                 <h3 className="card-title text-base sm:text-lg md:text-xl break-words">{lesson.title}</h3>
                                 <div className="bg-base-300 rounded overflow-hidden mt-2 sm:mt-4">
                                     <iframe
-                                        style={{ height: '700px', width: '300px' }}
+                                        className="w-full aspect-video block"
                                         src={convertToEmbedUrl(lesson.videoUrl)}
                                         title={lesson.title}
                                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -807,7 +807,7 @@ function QuizInterface({ quiz, courseId, lessonId, enrollment, onComplete }) {
                                         >
                                             <input
                                                 type="radio"
-                                                name="quiz-option"
+                                                name={`quiz-${lessonId}-${qIdx}`}
                                                 checked={answers[qIdx] === oIdx}
                                                 onChange={() => {
                                                     if (!loading) {
