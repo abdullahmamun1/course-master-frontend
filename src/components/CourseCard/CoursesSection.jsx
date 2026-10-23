@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { getCourses } from "../../services/courses.api";
@@ -16,59 +16,74 @@ export default function CoursesSection() {
     // query states
     const [page, setPage] = useState(1);
     const [limit] = useState(8);
-    const [search, setSearch] = useState("");
+    const [search, setSearch] = useState("");                   // what the user is typing
+    const [submittedSearch, setSubmittedSearch] = useState(""); // applied on submit only
     const [sort, setSort] = useState("");
     const [category, setCategory] = useState("");
     const [tags, setTags] = useState("");
+    const [debouncedCategory, setDebouncedCategory] = useState("");
+    const [debouncedTags, setDebouncedTags] = useState("");
+    const latestRequest = useRef(0);
 
-    const fetchCourses = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-
-            const params = {
-                page,
-                limit,
-                search: search || undefined,
-                sort: sort || undefined,
-                category: category || undefined,
-                tags: tags || undefined,
-            };
-
-            const res = await getCourses(params);
-            setCourses(res.data.courses || []);
-            setTotalPages(res.data.totalPages || 1);
-        } catch (err) {
-            setError("Failed to load courses");
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    // text filters wait until the user stops typing instead of firing a request per keystroke
     useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedCategory(category.trim());
+            setDebouncedTags(tags.trim());
+        }, 400);
+        return () => clearTimeout(timer);
+    }, [category, tags]);
+
+    // single place that fetches; every query change goes through here exactly once
+    useEffect(() => {
+        const requestId = ++latestRequest.current;
+
+        const fetchCourses = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+
+                const res = await getCourses({
+                    page,
+                    limit,
+                    search: submittedSearch || undefined,
+                    sort: sort || undefined,
+                    category: debouncedCategory || undefined,
+                    tags: debouncedTags || undefined,
+                });
+                if (requestId !== latestRequest.current) return; // a newer request is in flight
+                setCourses(res.data.courses || []);
+                setTotalPages(res.data.totalPages || 1);
+            } catch {
+                if (requestId !== latestRequest.current) return;
+                setError("Failed to load courses");
+            } finally {
+                if (requestId === latestRequest.current) setLoading(false);
+            }
+        };
+
         fetchCourses();
-        // eslint-disable-next-line
-    }, [page, sort, category, tags]);
+    }, [page, limit, submittedSearch, sort, debouncedCategory, debouncedTags]);
+
+    // any filter change starts again from page 1 (set together, so it's one fetch)
+    const handleSort = (value) => { setSort(value); setPage(1); };
+    const handleCategory = (value) => { setCategory(value); setPage(1); };
+    const handleTags = (value) => { setTags(value); setPage(1); };
 
     const onSearchSubmit = (e) => {
         e.preventDefault();
+        setSubmittedSearch(search.trim());
         setPage(1);
-        fetchCourses();
     };
-
-    // reset page when filters change
-    useEffect(() => {
-        setPage(1);
-    }, [sort, category, tags]);
 
     return (
         <div className="space-y-6">
 
             <CoursesFilters
                 search={search} setSearch={setSearch}
-                sort={sort} setSort={setSort}
-                category={category} setCategory={setCategory}
-                tags={tags} setTags={setTags}
+                sort={sort} setSort={handleSort}
+                category={category} setCategory={handleCategory}
+                tags={tags} setTags={handleTags}
                 onSearchSubmit={onSearchSubmit}
             />
 
