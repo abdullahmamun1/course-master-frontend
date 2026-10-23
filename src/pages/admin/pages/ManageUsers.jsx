@@ -187,7 +187,8 @@ export default function ManageUsers() {
             ) : (
                 <div className="card bg-base-100 border-2 border-base-300 shadow-lg">
                     <div className="card-body p-0">
-                        <div className="overflow-x-auto">
+                        {/* extra bottom room while a row menu is open so it isn't clipped by the scroll container */}
+                        <div className={`overflow-x-auto transition-[padding] ${showActions ? "pb-56" : ""}`}>
                             <table className="table w-full">
                                 <thead className="bg-base-200">
                                     <tr>
@@ -213,7 +214,7 @@ export default function ManageUsers() {
                                                 }`}
                                             >
                                                 <td className="font-semibold">{userItem.name}</td>
-                                                <td style={{ color: '#1e293b' }}>{userItem.email}</td>
+                                                <td className="text-base-content/80">{userItem.email}</td>
                                                 <td>
                                                     <span
                                                         className={`badge badge-lg font-semibold ${
