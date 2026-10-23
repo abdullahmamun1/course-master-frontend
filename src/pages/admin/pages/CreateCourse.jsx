@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createCourseAsync, clearSuccess, clearError } from "../../../store/slices/adminSlice";
 import { useNavigate } from "react-router-dom";
+import { toDateTimeLocalValue } from "../../../utils/date";
 
 export default function CreateCourse() {
     const navigate = useNavigate();
@@ -412,7 +413,7 @@ export default function CreateCourse() {
                                                                 />
                                                                 <input
                                                                     type="datetime-local"
-                                                                    value={lesson?.liveClassDate ? new Date(lesson.liveClassDate).toISOString().slice(0, 16) : ""}
+                                                                    value={toDateTimeLocalValue(lesson?.liveClassDate)}
                                                                     onChange={(e) => {
                                                                         const newSyllabus = form.syllabus.map((mod, mIdx) => {
                                                                             if (mIdx === modIdx) {

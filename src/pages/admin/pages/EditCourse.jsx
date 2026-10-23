@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCourseById } from "../../../store/slices/coursesSlice";
 import { useNavigate, useParams } from "react-router-dom";
+import { toDateTimeLocalValue } from "../../../utils/date";
 import { updateCourseAsync, clearError } from "../../../store/slices/adminSlice";
 
 export default function EditCourse() {
@@ -10,7 +11,7 @@ export default function EditCourse() {
     const navigate = useNavigate();
 
     const { currentCourse, detailLoading } = useSelector((state) => state.courses);
-    const { creating, error } = useSelector((state) => state.admin);
+    const { updating, error } = useSelector((state) => state.admin);
 
     const [form, setForm] = useState({
         title: "",
@@ -432,7 +433,7 @@ export default function EditCourse() {
                                                                 />
                                                                 <input
                                                                     type="datetime-local"
-                                                                    value={lesson?.liveClassDate ? new Date(lesson.liveClassDate).toISOString().slice(0, 16) : ""}
+                                                                    value={toDateTimeLocalValue(lesson?.liveClassDate)}
                                                                     onChange={(e) => {
                                                                         const newSyllabus = form.syllabus.map((mod, mIdx) => {
                                                                             if (mIdx === modIdx) {
@@ -717,10 +718,10 @@ export default function EditCourse() {
                 <div className="flex gap-3 pt-6">
                     <button
                         type="submit"
-                        disabled={creating}
+                        disabled={updating}
                         className="btn btn-primary flex-1"
                     >
-                        {creating ? (
+                        {updating ? (
                             <>
                                 <span className="loading loading-spinner"></span>
                                 Updating...
