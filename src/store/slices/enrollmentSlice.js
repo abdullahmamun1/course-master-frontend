@@ -26,7 +26,9 @@ export const fetchMyEnrollments = createAsyncThunk(
                 err.response?.data?.message || "Failed to load enrollments"
             );
         }
-    }
+    },
+    // skip if a request is already in flight (MainLayout and the dashboard both ask on load)
+    { condition: (_, { getState }) => !getState().enrollment.loading }
 );
 
 export const completeLessonAsync = createAsyncThunk(

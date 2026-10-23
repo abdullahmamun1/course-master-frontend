@@ -1,14 +1,16 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";
-import { getToken, clearToken } from "../../utils/auth";
-import { getMe } from "../../services/auth.api";
+import { getToken } from "../../utils/auth";
+import { logout } from "../../store/slices/authSlice";
 
 export default function Navbar() {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const token = getToken();
-    const [me, setMe] = useState(null);
+    // the current user is loaded once by MainLayout into Redux (no separate /auth/me call here)
+    const me = useSelector((state) => state.auth.user);
 
     const navLinkClass = ({ isActive }) =>
         isActive
@@ -16,25 +18,10 @@ export default function Navbar() {
             : "text-base-content/80 hover:text-primary";
 
     const handleLogout = () => {
-        clearToken();
-        setMe(null);
+        dispatch(logout()); // clears the token too
         navigate("/");
         window.location.reload();
     };
-
-    useEffect(() => {
-        const loadMe = async () => {
-            if (!token) return setMe(null);
-            try {
-                const res = await getMe();
-                setMe(res.data);
-            } catch {
-                clearToken();
-                setMe(null);
-            }
-        };
-        loadMe();
-    }, [token]);
 
     const initials = me?.name
         ? me.name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase()

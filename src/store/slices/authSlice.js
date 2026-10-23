@@ -40,7 +40,9 @@ export const getMeAsync = createAsyncThunk(
             clearToken();
             return rejectWithValue(err.response?.data?.message || "Failed to load user");
         }
-    }
+    },
+    // several components may ask for the user at once; only one request goes out
+    { condition: (_, { getState }) => !getState().auth.loading }
 );
 
 const authSlice = createSlice({

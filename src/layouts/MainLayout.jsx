@@ -8,13 +8,15 @@ import { fetchMyEnrollments } from "../store/slices/enrollmentSlice";
 
 export default function MainLayout() {
     const dispatch = useDispatch();
-    const { token, isAuthenticated } = useSelector((state) => state.auth);
+    const { token, user, isAuthenticated } = useSelector((state) => state.auth);
 
+    // load the current user once per session; isAuthenticated starts true when a token exists,
+    // so it can't be used to decide whether the user still needs loading
     useEffect(() => {
-        if (token && !isAuthenticated) {
+        if (token && !user) {
             dispatch(getMeAsync());
         }
-    }, [token, isAuthenticated, dispatch]);
+    }, [token, user, dispatch]);
 
     useEffect(() => {
         if (isAuthenticated) {
