@@ -27,6 +27,13 @@ export default function Assignments() {
         setReviewGrade(submission?.grade?.toString() || "");
     };
 
+    // the review form renders above the list; bring it into view when a review starts
+    useEffect(() => {
+        if (reviewingId) {
+            document.getElementById("review-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }, [reviewingId]);
+
     const submitReview = async () => {
         if (!reviewingId) return;
 
@@ -147,7 +154,7 @@ export default function Assignments() {
 
             {/* Enhanced review form (shown when admin clicks Review) */}
             {activeSubmission && (
-                <div className="card bg-base-100 shadow-lg border-2 border-primary">
+                <div id="review-form" className="card bg-base-100 shadow-lg border-2 border-primary scroll-mt-20">
                     <div className="card-body p-3 sm:p-6">
                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
                             <div className="flex-1 min-w-0">
@@ -344,7 +351,7 @@ export default function Assignments() {
                                                 </a>
                                             ) : (
                                                 <span className="text-xs truncate block" title={assign.answer}>
-                                                    📄 {assign.answer.substring(0, 30)}...
+                                                    📄 {assign.answer.length > 30 ? `${assign.answer.substring(0, 30)}...` : assign.answer}
                                                 </span>
                                             )}
                                         </td>
@@ -377,7 +384,7 @@ export default function Assignments() {
                                                         disabled={reviewingId === assign._id}
                                                     >
                                                         {reviewingId === assign._id ? (
-                                                            <span className="loading loading-spinner loading-xs"></span>
+                                                            "Reviewing…"
                                                         ) : (
                                                             "Review"
                                                         )}
@@ -389,7 +396,7 @@ export default function Assignments() {
                                                         disabled={reviewingId === assign._id}
                                                     >
                                                         {reviewingId === assign._id ? (
-                                                            <span className="loading loading-spinner loading-xs"></span>
+                                                            "Reviewing…"
                                                         ) : (
                                                             "Edit Review"
                                                         )}
@@ -461,7 +468,7 @@ export default function Assignments() {
                                                 disabled={reviewingId === assign._id}
                                             >
                                                 {reviewingId === assign._id ? (
-                                                    <span className="loading loading-spinner loading-xs"></span>
+                                                    "Reviewing…"
                                                 ) : (
                                                     "Review"
                                                 )}
@@ -473,7 +480,7 @@ export default function Assignments() {
                                                 disabled={reviewingId === assign._id}
                                             >
                                                 {reviewingId === assign._id ? (
-                                                    <span className="loading loading-spinner loading-xs"></span>
+                                                    "Reviewing…"
                                                 ) : (
                                                     "Edit Review"
                                                 )}
