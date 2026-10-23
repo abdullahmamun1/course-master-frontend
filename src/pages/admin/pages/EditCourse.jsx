@@ -262,9 +262,6 @@ export default function EditCourse() {
                                                 newSyllabus[modIdx].lessons.push({
                                                     title: "",
                                                     videoUrl: "",
-                                                    liveClassLink: "",
-                                                    liveClassDate: "",
-                                                    assignmentPrompt: "",
                                                     quiz: [],
                                                 });
                                                 setForm({ ...form, syllabus: newSyllabus });
@@ -356,7 +353,7 @@ export default function EditCourse() {
                                                             <label className="label py-0">
                                                                 <span className="label-text font-semibold">Live Class (Optional)</span>
                                                             </label>
-                                                            {!lesson?.liveClassLink ? (
+                                                            {lesson?.liveClassLink === undefined ? (
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => {
@@ -466,7 +463,7 @@ export default function EditCourse() {
                                                             <label className="label py-0">
                                                                 <span className="label-text font-semibold">Assignment</span>
                                                             </label>
-                                                            {!lesson?.assignmentPrompt ? (
+                                                            {lesson?.assignmentPrompt === undefined ? (
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => {
