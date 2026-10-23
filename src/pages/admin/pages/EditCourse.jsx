@@ -601,6 +601,9 @@ export default function EditCourse() {
                                                                         }}
                                                                         placeholder="Enter question"
                                                                         className="input input-bordered input-sm mb-2"
+                                                                        required
+                                                                        pattern=".*\S.*"
+                                                                        title="Question cannot be empty"
                                                                     />
 
                                                                     <div className="space-y-1">
@@ -627,6 +630,9 @@ export default function EditCourse() {
                                                                                     }}
                                                                                     placeholder={`Option ${optIdx + 1}`}
                                                                                     className="input input-bordered input-sm flex-1"
+                                                                                    required
+                                                                                    pattern=".*\S.*"
+                                                                                    title="Option cannot be empty"
                                                                                 />
                                                                             </div>
                                                                         ))}
