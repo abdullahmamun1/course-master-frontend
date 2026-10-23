@@ -31,9 +31,10 @@ import {
 export default function AdminOverview() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { enrollments, assignments } = useSelector((state) => state.admin);
+    const { enrollments, assignments, error: adminError } = useSelector((state) => state.admin);
     const [analytics, setAnalytics] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [analyticsError, setAnalyticsError] = useState(null);
 
     useEffect(() => {
         dispatch(fetchEnrollments());
@@ -44,10 +45,12 @@ export default function AdminOverview() {
     const loadAnalytics = async () => {
         try {
             setLoading(true);
+            setAnalyticsError(null);
             const res = await getAnalytics();
             setAnalytics(res.data);
         } catch (err) {
             console.error("Failed to load analytics:", err);
+            setAnalyticsError(err.response?.data?.message || "Failed to load analytics");
         } finally {
             setLoading(false);
         }
@@ -59,7 +62,8 @@ export default function AdminOverview() {
             value: enrollments.length,
             colorClass: "bg-gradient-to-br from-primary to-primary/80 text-primary-content",
             icon: <Users className="w-8 h-8" />,
-            trend: "+12%",
+            // real figure from the analytics API (was a hard-coded "+12%")
+            trend: analytics?.stats ? `+${analytics.stats.enrollmentsLast30Days} in last 30 days` : null,
         },
         {
             title: "Pending Assignments",
@@ -148,6 +152,15 @@ export default function AdminOverview() {
                     Live Dashboard
                 </div>
             </div>
+
+            {(analyticsError || adminError) && (
+                <div className="alert alert-error">
+                    <span>{analyticsError || adminError}</span>
+                    <button className="btn btn-sm" onClick={() => { loadAnalytics(); dispatch(fetchEnrollments()); dispatch(fetchAssignments()); }}>
+                        Retry
+                    </button>
+                </div>
+            )}
 
             {/* Quick Actions */}
             <div className="card bg-base-100 border border-base-300 shadow-sm">
