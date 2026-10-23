@@ -43,6 +43,7 @@ export default function AdminSidebar() {
 
     const menuItems = [
         { to: "/admin", label: "Overview", Icon: LayoutDashboard, end: true },
+        { to: "/admin/courses", label: "Manage Courses", Icon: BookOpen, end: true },
         { to: "/admin/courses/create", label: "Add Course", Icon: PlusCircle, end: true },
         { to: "/admin/video-classes", label: "Video Classes", Icon: Video, end: true },
         { to: "/admin/enrollments", label: "Enrollments", Icon: Users, end: true },
@@ -54,7 +55,7 @@ export default function AdminSidebar() {
     return (
         <>
             {/* Mobile menu button */}
-            <div className="lg:hidden fixed top-16 left-0 right-0 z-40 bg-base-200 border-b-2 border-base-300 p-2 shadow-md">
+            <div className="lg:hidden sticky top-16 z-40 bg-base-200 border-b-2 border-base-300 p-2 shadow-md">
                 <button
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                     className="btn btn-sm btn-ghost text-base-content"
