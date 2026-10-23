@@ -548,6 +548,9 @@ function QuizInterface({ quiz, courseId, lessonId, enrollment, onComplete }) {
     const [previousSubmission, setPreviousSubmission] = useState(null);
     const [loadingPrevious, setLoadingPrevious] = useState(true);
 
+    // correct answers are not part of the course data; they come with the student's own submission
+    const correctAnswers = previousSubmission?.correctAnswers || [];
+
     // Check for previous submission on mount
     useEffect(() => {
         const checkPreviousSubmission = async () => {
@@ -647,6 +650,7 @@ function QuizInterface({ quiz, courseId, lessonId, enrollment, onComplete }) {
                 percent: result.percent,
                 lessonId: lessonId,
                 answers: answersArray,
+                correctAnswers: result.correctAnswers || [],
                 createdAt: new Date(),
             };
             setPreviousSubmission(submissionResult);
@@ -738,7 +742,7 @@ function QuizInterface({ quiz, courseId, lessonId, enrollment, onComplete }) {
                 <div className="space-y-4 sm:space-y-6 mt-3 sm:mt-4">
                     {quiz.map((question, qIdx) => {
                         const userAnswer = answers[qIdx];
-                        const isCorrect = userAnswer === question.correctIndex;
+                        const isCorrect = userAnswer === correctAnswers[qIdx];
                         const showResults = submitted && previousSubmission;
                         const showReview = previousSubmission && !submitted;
 
@@ -778,7 +782,7 @@ function QuizInterface({ quiz, courseId, lessonId, enrollment, onComplete }) {
                                                     Your answer: <span className="text-error">{question.options[userAnswer]}</span>
                                                 </p>
                                                 <p className="text-xs text-base-content/70">
-                                                    Correct answer: <span className="text-success font-semibold">{question.options[question.correctIndex]}</span>
+                                                    Correct answer: <span className="text-success font-semibold">{question.options[correctAnswers[qIdx]]}</span>
                                                 </p>
                                             </div>
                                         )}
@@ -787,16 +791,16 @@ function QuizInterface({ quiz, courseId, lessonId, enrollment, onComplete }) {
 
                                 {showReview && !loading && (
                                     <p className="text-xs mb-2 text-base-content/70">
-                                        💡 Correct answer: <span className="font-semibold">{question.options[question.correctIndex]}</span>
+                                        💡 Correct answer: <span className="font-semibold">{question.options[correctAnswers[qIdx]]}</span>
                                     </p>
                                 )}
                                 <div className="space-y-2">
                                     {question.options?.map((option, oIdx) => (
                                         <label
                                             key={oIdx}
-                                            className={`cursor-pointer flex gap-2 sm:gap-3 p-2 rounded transition ${showResults && oIdx === question.correctIndex ? 'bg-success/20' :
+                                            className={`cursor-pointer flex gap-2 sm:gap-3 p-2 rounded transition ${showResults && oIdx === correctAnswers[qIdx] ? 'bg-success/20' :
                                                 showResults && oIdx === userAnswer && !isCorrect ? 'bg-error/20' :
-                                                    showReview && oIdx === question.correctIndex ? 'bg-success/20' :
+                                                    showReview && oIdx === correctAnswers[qIdx] ? 'bg-success/20' :
                                                         showReview && oIdx === userAnswer && !isCorrect ? 'bg-error/20' :
                                                             'hover:bg-base-200'
                                                 }`}
@@ -814,13 +818,13 @@ function QuizInterface({ quiz, courseId, lessonId, enrollment, onComplete }) {
                                                 className="radio radio-sm flex-shrink-0"
                                             />
                                             <span className="text-xs sm:text-sm flex-1">{option}</span>
-                                            {showResults && oIdx === question.correctIndex && (
+                                            {showResults && oIdx === correctAnswers[qIdx] && (
                                                 <span className="text-success font-semibold">✓ Correct Answer</span>
                                             )}
                                             {showResults && oIdx === userAnswer && !isCorrect && (
                                                 <span className="text-error font-semibold">✗ Your Answer</span>
                                             )}
-                                            {showReview && !loading && oIdx === question.correctIndex && (
+                                            {showReview && !loading && oIdx === correctAnswers[qIdx] && (
                                                 <span className="text-success">✓ Correct</span>
                                             )}
                                             {showReview && !loading && oIdx === userAnswer && !isCorrect && (
@@ -898,7 +902,7 @@ function QuizInterface({ quiz, courseId, lessonId, enrollment, onComplete }) {
                                 <div className="space-y-2">
                                     {quiz.map((question, qIdx) => {
                                         const userAnswer = answers[qIdx];
-                                        const isCorrect = userAnswer === question.correctIndex;
+                                        const isCorrect = userAnswer === correctAnswers[qIdx];
                                         return (
                                             <div
                                                 key={qIdx}
@@ -919,7 +923,7 @@ function QuizInterface({ quiz, courseId, lessonId, enrollment, onComplete }) {
                                                         </p>
                                                         {!isCorrect && (
                                                             <p className="text-xs mt-1 text-success">
-                                                                Correct answer: <span className="font-semibold">{question.options[question.correctIndex]}</span>
+                                                                Correct answer: <span className="font-semibold">{question.options[correctAnswers[qIdx]]}</span>
                                                             </p>
                                                         )}
                                                     </div>
